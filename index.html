@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload de Arquivo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Multer e envio de imagens</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="file">Envie aqui sua foto</label>
+        <input type="file" name="image" id="image" accept="image/*">
+        <button type="submit">Enviar</button>
+    </form>
+
+    <div id="response" class="retorno">
+        <h2>Arquivos foram salvos em:</h2>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const imageFile = document.getElementById('image').files[0];
+            formData.append('image', imageFile);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const responseDiv = document.getElementById('response');
+                responseDiv.style.display = 'block'; // Torna a div visível
+                if (data.filePath) {
+                    responseDiv.innerHTML = `<h2>Arquivos foram salvos em:</h2><p>${data.message}</p><p>Caminho do arquivo: <a href="${data.filePath}">${data.filePath}</a></p>`;
+                } else {
+                    responseDiv.innerHTML = `<h2>Arquivos foram salvos em:</h2><p>${data.message}</p>`;
+                }
+                // Redireciona para a página inicial após 3 segundos
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 3000);
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                document.getElementById('response').innerHTML = `<h2>Arquivos foram salvos em:</h2><p>Erro ao enviar o arquivo.</p>`;
+            });
+        });
+    </script>
+</body>
+</html>
